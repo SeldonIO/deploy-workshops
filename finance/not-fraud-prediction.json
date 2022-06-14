@@ -1,0 +1,28 @@
+{
+    "data": {
+        "names": [
+            "step",
+            "type",
+            "amount",
+            "oldBalanceOrig",
+            "newBalanceOrig",
+            "oldBalanceDest",
+            "newBalanceDest",
+            "errorBalanceOrig",
+            "errorBalanceDest"
+        ],
+        "ndarray": [
+            [
+                205,
+                1,
+                63243.44,
+                -1.00,
+                -1.00,
+                1853683.32,
+                1916926.76,
+                63243.44,
+                0
+            ]
+        ]
+    }
+}
