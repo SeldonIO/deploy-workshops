@@ -55,7 +55,7 @@ class ReviewRatings(object):
             columns=["attention_mask", "input_ids"],
             label_cols=["labels"],
             shuffle=True,
-            batch_size=16,
+            batch_size=1,
             collate_fn=self.data_collator
         )
         logger.info(f"TF dataset created: {tf_inf}")
