@@ -39,12 +39,16 @@ class ReviewRatings(object):
 
     def preprocess_text(self, text, feature_names):
         logger.info("Preprocessing text")
+        logger.info(f"Incoming text: {text}")
         dict_text = {"review": text}
         df = pd.DataFrame(data=dict_text)
+        logger.info(f"Dataframe created: {df}")
 
         dataset = datasets.Dataset.from_pandas(df, preserve_index=False)
+        logger.info(f"Dataset created: {dataset}")
 
         tokenized_revs = dataset.map(self.tokenize, batched=True)
+        logger.info(f"Tokenized reviews: {tokenized_revs}")
 
         logger.info("Converting tokenized reviews to tf dataset")
         tf_inf = tokenized_revs.to_tf_dataset(
@@ -54,6 +58,7 @@ class ReviewRatings(object):
             batch_size=16,
             collate_fn=self.data_collator
         )
+        logger.info(f"TF dataset created: {tf_inf}")
 
         return tf_inf
 
@@ -88,6 +93,7 @@ class ReviewRatings(object):
                 self.load_model()
                 logger.info("Model successfully loaded")
                 self.ready = True
+                logger.info(f"{self.model.summary}")
                 pred_proc = self.process_whole(text)
             else:
                 pred_proc = self.process_whole(text)
