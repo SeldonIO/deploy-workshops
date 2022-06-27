@@ -9,7 +9,7 @@ RUN pip install -r requirements.txt
 COPY . .
 
 # Port for GRPC
-EXPOSE 6000
+EXPOSE 5000
 # Port for REST
 EXPOSE 9000
 
