@@ -36,6 +36,7 @@ class ReviewRatings(object):
             blob.download_to_filename(self.local_dir + filename)
         logger.info("Loading model")
         self.model = TFAutoModelForSequenceClassification.from_pretrained("1", num_labels=9)
+        logger.info(f"{self.model.summary}")
 
     def preprocess_text(self, text, feature_names):
         logger.info("Preprocessing text")
@@ -43,6 +44,8 @@ class ReviewRatings(object):
         dict_text = {"review": text}
         df = pd.DataFrame(data=dict_text)
         logger.info(f"Dataframe created: {df}")
+        len_df = len(df)
+        logger.info(f"{len(df)}")
 
         dataset = datasets.Dataset.from_pandas(df, preserve_index=False)
         logger.info(f"Dataset created: {dataset}")
@@ -55,7 +58,7 @@ class ReviewRatings(object):
             columns=["attention_mask", "input_ids"],
             label_cols=["labels"],
             shuffle=True,
-            batch_size=16,
+            batch_size=len_df,
             collate_fn=self.data_collator
         )
         logger.info(f"TF dataset created: {tf_inf}")
