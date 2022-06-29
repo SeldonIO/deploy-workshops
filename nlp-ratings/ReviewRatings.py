@@ -4,9 +4,20 @@ import datasets
 from transformers import AutoTokenizer, DefaultDataCollator, TFAutoModelForSequenceClassification
 from google.cloud import storage
 import logging
+import string
+import nltk
+from nltk.stem import WordNetLemmatizer
 
 from pathlib import Path
+
 Path("1").mkdir(parents=True, exist_ok=True)
+
+nltk.download("stopwords", download_dir="./nltk")
+nltk.download("wordnet", download_dir="./nltk")
+nltk.download("omw-1.4", download_dir="./nltk")
+nltk.data.path.append("./nltk")
+# Stop words present in the library
+stopwords = nltk.corpus.stopwords.words('english')
 
 logger = logging.getLogger(__name__)
 
@@ -21,6 +32,8 @@ class ReviewRatings(object):
         self.model = None
         self.prefix = model_path
         self.local_dir = "1/"
+
+        self.wordnet_lemmatizer = WordNetLemmatizer()
 
         logger.info("Loading tokenizer and data collator")
         self.tokenizer = AutoTokenizer.from_pretrained("distilbert-base-uncased")
@@ -45,6 +58,15 @@ class ReviewRatings(object):
         dict_text = {"review": text_list}
         df = pd.DataFrame(data=dict_text)
         logger.info(f"Dataframe created: {df}")
+        logger.info("Removing punctuation")
+        df['review'] = df['review'].apply(lambda x: self.remove_punctuation(x))
+        logger.info("Lowercase all characters")
+        df['review'] = df['review'].apply(lambda x: x.lower())
+        logger.info("Removing stopwords")
+        df['review'] = df['review'].apply(lambda x: self.remove_stopwords(x))
+        logger.info("Carrying out lemmatization")
+        df['review'] = df['review'].apply(lambda x: self.lemmatizer(x))
+
         len_df = len(df)
         logger.info(f"{len(df)}")
 
@@ -65,6 +87,18 @@ class ReviewRatings(object):
         logger.info(f"TF dataset created: {tf_inf}")
 
         return tf_inf
+
+    def remove_punctuation(self, text):
+        punctuation_free = "".join([i for i in text if i not in string.punctuation])
+        return punctuation_free
+
+    def remove_stopwords(self, text):
+        text = ' '.join([word for word in text.split() if word not in stopwords])
+        return text
+
+    def lemmatizer(self, text):
+        lemm_text = ' '.join([self.wordnet_lemmatizer.lemmatize(word) for word in text.split()])
+        return lemm_text
 
     def tokenize(self, ds):
         return self.tokenizer(ds["review"], padding="max_length", truncation=True)
