@@ -41,7 +41,8 @@ class ReviewRatings(object):
     def preprocess_text(self, text, feature_names):
         logger.info("Preprocessing text")
         logger.info(f"Incoming text: {text}")
-        dict_text = {"review": text}
+        text_list = text[0]
+        dict_text = {"review": text_list}
         df = pd.DataFrame(data=dict_text)
         logger.info(f"Dataframe created: {df}")
         len_df = len(df)
