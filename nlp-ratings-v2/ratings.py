@@ -2,13 +2,21 @@ import pandas as pd
 import numpy as np
 import datasets
 from transformers import AutoTokenizer, DefaultDataCollator, TFAutoModelForSequenceClassification
-from google.cloud import storage
-import logging
 import string
 import nltk
 from nltk.stem import WordNetLemmatizer
 
 from pathlib import Path
+
+from mlserver import MLModel
+from mlserver.utils import get_model_uri
+from mlserver.types import (
+    InferenceRequest,
+    InferenceResponse
+)
+from mlserver.codecs import NumpyRequestCodec
+from mlserver.codecs.string import StringRequestCodec
+import mlserver.logging
 
 Path("1").mkdir(parents=True, exist_ok=True)
 
@@ -19,37 +27,34 @@ nltk.data.path.append("./nltk")
 # Stop words present in the library
 stopwords = nltk.corpus.stopwords.words('english')
 
-logger = logging.getLogger(__name__)
+logger = mlserver.logging.get_logger()
 
 
-class ReviewRatings(object):
-    def __init__(self, model_path):
-        logger.info("Connecting to GCS")
-        self.client = storage.Client.create_anonymous_client()
-        self.bucket = self.client.bucket('kelly-seldon')
+class ReviewRatings(MLModel):
+    async def load(self) -> bool:
+        model_uri = await get_model_uri(
+            self.settings
+        )
 
-        logger.info(f"Model name: {model_path}")
-        self.model = None
-        self.prefix = model_path
-        self.local_dir = "1/"
+        logger.info("Loading model")
+        self._model = TFAutoModelForSequenceClassification.from_pretrained(model_uri, num_labels=9)
+        logger.info("Model successfully loaded")
 
-        self.wordnet_lemmatizer = WordNetLemmatizer()
+        self._wordnet_lemmatizer = WordNetLemmatizer()
 
         logger.info("Loading tokenizer and data collator")
-        self.tokenizer = AutoTokenizer.from_pretrained("distilbert-base-uncased")
-        self.data_collator = DefaultDataCollator(return_tensors="tf")
+        self._tokenizer = AutoTokenizer.from_pretrained("distilbert-base-uncased")
+        self._data_collator = DefaultDataCollator(return_tensors="tf")
 
-        self.ready = False
+        self.ready = True
+        return self.ready
 
-    def load_model(self):
-        logger.info("Getting model artifact from GCS")
-        blobs = self.bucket.list_blobs(prefix=self.prefix)
-        for blob in blobs:
-            filename = blob.name.split('/')[-1]
-            blob.download_to_filename(self.local_dir + filename)
-        logger.info("Loading model")
-        self.model = TFAutoModelForSequenceClassification.from_pretrained("1", num_labels=9)
-        logger.info(f"{self.model.summary}")
+    async def predict(self, payload: InferenceRequest) -> InferenceResponse:
+        review_str = StringRequestCodec.decode_request(payload)
+        pred_proc = self.process_whole(review_str)
+        response = NumpyRequestCodec.encode_response(pred_proc)
+
+        return response
 
     def preprocess_text(self, text, feature_names):
         logger.info("Preprocessing text")
@@ -82,7 +87,7 @@ class ReviewRatings(object):
             label_cols=["labels"],
             shuffle=True,
             batch_size=len_df,
-            collate_fn=self.data_collator
+            collate_fn=self._data_collator
         )
         logger.info(f"TF dataset created: {tf_inf}")
 
@@ -97,11 +102,11 @@ class ReviewRatings(object):
         return text
 
     def lemmatizer(self, text):
-        lemm_text = ' '.join([self.wordnet_lemmatizer.lemmatize(word) for word in text.split()])
+        lemm_text = ' '.join([self._wordnet_lemmatizer.lemmatize(word) for word in text.split()])
         return lemm_text
 
     def tokenize(self, ds):
-        return self.tokenizer(ds["review"], padding="max_length", truncation=True)
+        return self._tokenizer(ds["review"], padding="max_length", truncation=True)
 
     def process_output(self, preds):
         logger.info("Processing model predictions")
@@ -115,28 +120,13 @@ class ReviewRatings(object):
         return rating_preds
 
     def process_whole(self, text):
+        logger.info("Start processing")
         tf_inf = self.preprocess_text(text, feature_names=None)
         logger.info("Predictions ready to be made")
-        preds = self.model.predict(tf_inf)
+        preds = self._model.predict(tf_inf)
         logger.info(f"Prediction type: {type(preds)}")
         logger.info(f"Predictions: {preds}")
         preds_proc = self.process_output(preds)
         logger.info(f"Processed predictions: {preds_proc}, Processed predictions type: {type(preds_proc)}")
 
         return preds_proc
-
-    def predict(self, text, names=[], meta=[]):
-        try:
-            if not self.ready:
-                self.load_model()
-                logger.info("Model successfully loaded")
-                self.ready = True
-                logger.info(f"{self.model.summary}")
-                pred_proc = self.process_whole(text)
-            else:
-                pred_proc = self.process_whole(text)
-
-            return pred_proc
-
-        except Exception as ex:
-            logging.exception(f"Failed during predict: {ex}")

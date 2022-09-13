@@ -1,0 +1,7 @@
+{
+    "name": "nlp-ratings",
+    "implementation": "ratings.ReviewRatings",
+    "parameters": {
+        "uri": "../nlp-ratings-v2/1/"
+    }
+}
