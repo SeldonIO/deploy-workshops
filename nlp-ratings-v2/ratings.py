@@ -16,8 +16,7 @@ from mlserver.types import (
 )
 from mlserver.codecs import NumpyRequestCodec
 from mlserver.codecs.string import StringRequestCodec
-import mlserver.logging
-
+from mlserver.logging import logger
 Path("1").mkdir(parents=True, exist_ok=True)
 
 nltk.download("stopwords", download_dir="./nltk")
@@ -26,8 +25,6 @@ nltk.download("omw-1.4", download_dir="./nltk")
 nltk.data.path.append("./nltk")
 # Stop words present in the library
 stopwords = nltk.corpus.stopwords.words('english')
-
-logger = mlserver.logging.get_logger()
 
 
 class ReviewRatings(MLModel):
@@ -50,20 +47,25 @@ class ReviewRatings(MLModel):
         return self.ready
 
     async def predict(self, payload: InferenceRequest) -> InferenceResponse:
-        review_str = StringRequestCodec.decode_request(payload)
-        pred_proc = self.process_whole(review_str)
-        response = NumpyRequestCodec.encode_response(pred_proc)
+        logger.info("Starting prediction")
+        print("Starting prediction")
+        review_df = self.decode_request(payload)
+        # review_str = StringRequestCodec.decode_request(payload)
+        pred_proc = self.process_whole(review_df)
+        response = NumpyRequestCodec.encode_response(model_name=self.name, payload=pred_proc)
+
+        print(response)
 
         return response
 
-    def preprocess_text(self, text, feature_names):
+    def preprocess_text(self, df, feature_names):
         logger.info("Preprocessing text")
-        logger.info(f"Incoming text: {text}")
-        text_list = text[0]
-        dict_text = {"review": text_list}
-        df = pd.DataFrame(data=dict_text)
-        logger.info(f"Dataframe created: {df}")
-        logger.info("Removing punctuation")
+        # logger.info(f"Incoming text: {text}")
+        # dict_text = {"review": text}
+        # breakpoint()
+        # df = pd.DataFrame(data=dict_text)
+        # logger.info(f"Dataframe created: {df}")
+        # logger.info("Removing punctuation")
         df['review'] = df['review'].apply(lambda x: self.remove_punctuation(x))
         logger.info("Lowercase all characters")
         df['review'] = df['review'].apply(lambda x: x.lower())
