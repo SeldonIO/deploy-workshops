@@ -1,0 +1,7 @@
+{
+    "implementation": "ratings.ReviewRatings",
+    "parameters": {
+        "uri": "./1/"
+    },
+    "parallel_workers": 0
+}
