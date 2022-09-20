@@ -1,4 +1,3 @@
-import pandas as pd
 import numpy as np
 import datasets
 from transformers import AutoTokenizer, DefaultDataCollator, TFAutoModelForSequenceClassification
@@ -15,7 +14,6 @@ from mlserver.types import (
     InferenceResponse
 )
 from mlserver.codecs import NumpyRequestCodec
-from mlserver.codecs.string import StringRequestCodec
 from mlserver.logging import logger
 Path("1").mkdir(parents=True, exist_ok=True)
 
@@ -47,25 +45,16 @@ class ReviewRatings(MLModel):
         return self.ready
 
     async def predict(self, payload: InferenceRequest) -> InferenceResponse:
-        logger.info("Starting prediction")
-        print("Starting prediction")
         review_df = self.decode_request(payload)
-        # review_str = StringRequestCodec.decode_request(payload)
         pred_proc = self.process_whole(review_df)
         response = NumpyRequestCodec.encode_response(model_name=self.name, payload=pred_proc)
-
-        print(response)
+        response.outputs[0].shape = [response.outputs[0].shape[0], 1]
 
         return response
 
     def preprocess_text(self, df, feature_names):
         logger.info("Preprocessing text")
-        # logger.info(f"Incoming text: {text}")
-        # dict_text = {"review": text}
-        # breakpoint()
-        # df = pd.DataFrame(data=dict_text)
-        # logger.info(f"Dataframe created: {df}")
-        # logger.info("Removing punctuation")
+        logger.info("Removing punctuation")
         df['review'] = df['review'].apply(lambda x: self.remove_punctuation(x))
         logger.info("Lowercase all characters")
         df['review'] = df['review'].apply(lambda x: x.lower())

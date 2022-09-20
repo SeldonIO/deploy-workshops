@@ -18,9 +18,4 @@ RUN mkdir /.cache
 RUN chown -R 8888 /.cache
 RUN chown -R 8888 /app
 
-# Define environment variables
-ENV MODEL_NAME ReviewRatings
-ENV PERSISTENCE 0
-ENV SERVICE_TYPE MODEL
-
-CMD exec seldon-core-microservice $MODEL_NAME --service-type $SERVICE_TYPE
+CMD exec mlserver start .

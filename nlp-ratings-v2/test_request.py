@@ -14,7 +14,7 @@ inference_request = {
     ]
 }
 
-endpoint = "http://localhost:8080/v2/models/nlp-ratings/infer"
+endpoint = "http://localhost:8080/v2/models/nlp-ratings-v2/infer"
 response = requests.post(endpoint, json=inference_request)
 
 print(response.json())

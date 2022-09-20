@@ -1,7 +1,7 @@
 {
     "implementation": "ratings.ReviewRatings",
     "parameters": {
-        "uri": "../nlp-ratings-v2/1/"
+        "uri": "./1/"
     },
     "parallel_workers": 0
 }
