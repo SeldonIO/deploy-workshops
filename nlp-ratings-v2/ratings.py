@@ -5,24 +5,14 @@ import string
 import nltk
 from nltk.stem import WordNetLemmatizer
 
-from pathlib import Path
-
 from mlserver import MLModel
 from mlserver.utils import get_model_uri
 from mlserver.types import (
     InferenceRequest,
     InferenceResponse
 )
-from mlserver.codecs import NumpyRequestCodec
+from mlserver.codecs import NumpyRequestCodec, PandasCodec
 from mlserver.logging import logger
-Path("1").mkdir(parents=True, exist_ok=True)
-
-nltk.download("stopwords", download_dir="./nltk")
-nltk.download("wordnet", download_dir="./nltk")
-nltk.download("omw-1.4", download_dir="./nltk")
-nltk.data.path.append("./nltk")
-# Stop words present in the library
-stopwords = nltk.corpus.stopwords.words('english')
 
 
 class ReviewRatings(MLModel):
@@ -41,11 +31,18 @@ class ReviewRatings(MLModel):
         self._tokenizer = AutoTokenizer.from_pretrained("distilbert-base-uncased")
         self._data_collator = DefaultDataCollator(return_tensors="tf")
 
+        nltk.download("stopwords", download_dir="./nltk")
+        nltk.download("wordnet", download_dir="./nltk")
+        nltk.download("omw-1.4", download_dir="./nltk")
+        nltk.data.path.append("./nltk")
+        # Stop words present in the library
+        self.stopwords = nltk.corpus.stopwords.words('english')
+
         self.ready = True
         return self.ready
 
     async def predict(self, payload: InferenceRequest) -> InferenceResponse:
-        review_df = self.decode_request(payload)
+        review_df = self.decode_request(payload, default_codec=PandasCodec)
         pred_proc = self.process_whole(review_df)
         response = NumpyRequestCodec.encode_response(model_name=self.name, payload=pred_proc)
         response.outputs[0].shape = [response.outputs[0].shape[0], 1]
@@ -89,7 +86,7 @@ class ReviewRatings(MLModel):
         return punctuation_free
 
     def remove_stopwords(self, text):
-        text = ' '.join([word for word in text.split() if word not in stopwords])
+        text = ' '.join([word for word in text.split() if word not in self.stopwords])
         return text
 
     def lemmatizer(self, text):
