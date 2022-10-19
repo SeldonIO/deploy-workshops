@@ -1,0 +1,5 @@
+data/
+*.zip
+simple-cnn/
+inception/
+test-scratches.json
