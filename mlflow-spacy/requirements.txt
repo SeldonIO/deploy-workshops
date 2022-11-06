@@ -1,0 +1,15 @@
+mlflow
+spacy==2.3.2
+mlserver==1.2.0.dev13
+mlserver-mlflow==1.2.0.dev13
+datetime
+pandas
+jsonschema==4.16.0
+numpy
+transformers
+alibi-detect==0.8.1
+seldon_deploy_sdk
+conda-pack
+jupyter
+jupyterlab
+gsutil

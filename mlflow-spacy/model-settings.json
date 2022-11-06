@@ -1,0 +1,7 @@
+{
+    "name": "nn-ee",
+    "implementation": "mlserver_mlflow.MLflowRuntime",
+    "parameters": {
+        "uri": "./spacy_pyfunc/"
+    }
+}
