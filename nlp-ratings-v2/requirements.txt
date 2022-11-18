@@ -5,8 +5,3 @@ tensorflow == 2.7.3
 transformers == 4.20.0
 mlserver
 nltk
-
-
-
-
-
