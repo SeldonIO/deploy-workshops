@@ -1,3 +1,5 @@
 .ipynb_checkpoints/
 mlruns
 __pycache__
+.vscode/
+*.tar.gz
