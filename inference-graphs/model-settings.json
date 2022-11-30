@@ -1,0 +1,4 @@
+{
+    "name": "simple-mlserver",
+    "implementation": "model.CustomModel"
+}
