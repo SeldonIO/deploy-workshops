@@ -1,0 +1,175 @@
+{
+  "requests": [
+    {
+      "name": "checking_account_status",
+      "type": "CATEGORICAL",
+      "dataType": "INT",
+      "nCategories": "4",
+      "categoryMap": {
+        "0": "negative",
+        "1": "no_account",
+        "2": "good_standing",
+        "3": "overdrawn"
+      },
+      "schema": [],
+      "shape": []
+    },
+    {
+      "name": "savings_account_status",
+      "type": "CATEGORICAL",
+      "dataType": "INT",
+      "nCategories": "4",
+      "categoryMap": {
+        "0": "negative",
+        "1": "no_account",
+        "2": "good_standing",
+        "3": "overdrawn"
+      },
+      "schema": [],
+      "shape": []
+    },
+    {
+      "name": "credit_history",
+      "type": "CATEGORICAL",
+      "dataType": "INT",
+      "nCategories": "5",
+      "categoryMap": {
+        "0": "no_credit",
+        "1": "all_paid",
+        "2": "existing_credits_paid_back",
+        "3": "delay_in_paying_off",
+        "4": "critical_account"
+      },
+      "schema": [],
+      "shape": []
+    },
+    {
+      "name": "employment",
+      "type": "CATEGORICAL",
+      "dataType": "INT",
+      "nCategories": "4",
+      "categoryMap": {
+        "0": "unemployed",
+        "1": "full time",
+        "2": "part time",
+        "3": "contractor",
+        "4": "unemployed"
+      },
+      "schema": [],
+      "shape": []
+    },
+    {
+      "name": "loan_purpose",
+      "type": "CATEGORICAL",
+      "dataType": "INT",
+      "nCategories": "5",
+      "categoryMap": {
+        "0": "car",
+        "1": "education",
+        "2": "home",
+        "3": "business",
+        "4": "debt_consolidation"
+      },
+      "schema": [],
+      "shape": []
+    },
+    {
+      "name": "installment_rate",
+      "type": "REAL",
+      "dataType": "INT",
+      "nCategories": "0",
+      "categoryMap": {},
+      "schema": [],
+      "shape": []
+    },
+    {
+      "name": "personal_status",
+      "type": "CATEGORICAL",
+      "dataType": "INT",
+      "nCategories": "4",
+      "categoryMap": {
+        "0": "single_male",
+        "1": "single_female",
+        "2": "married",
+        "3": "divorced"
+      },
+      "schema": [],
+      "shape": []
+    },
+    {
+      "name": "other_debtors",
+      "type": "CATEGORICAL",
+      "dataType": "INT",
+      "nCategories": "3",
+      "categoryMap": {
+        "0": "none",
+        "1": "co-applicant",
+        "2": "guarantor"
+      },
+      "schema": [],
+      "shape": []
+    },
+    {
+      "name": "age",
+      "type": "REAL",
+      "dataType": "INT",
+      "nCategories": "0",
+      "categoryMap": {},
+      "schema": [],
+      "shape": []
+    },
+    {
+      "name": "job",
+      "type": "CATEGORICAL",
+      "dataType": "INT",
+      "nCategories": "5",
+      "categoryMap": {
+        "0": "unskilled_resident",
+        "1": "skilled_employee",
+        "2": "management_self-employed",
+        "3": "unemployed"
+      },
+      "schema": [],
+      "shape": []
+    },
+    {
+      "name": "dependents",
+      "type": "CATEGORICAL",
+      "dataType": "INT",
+      "nCategories": "5",
+      "categoryMap": {
+        "0": "no_credit",
+        "1": "all_paid",
+        "2": "existing_credits_paid_back",
+        "3": "delay_in_paying_off",
+        "4": "critical_account"
+      },
+      "schema": [],
+      "shape": []
+    },
+    {
+      "name": "existing_loan_amounts",
+      "type": "REAL",
+      "dataType": "INT",
+      "nCategories": "0",
+      "categoryMap": {},
+      "schema": [],
+      "shape": []
+    }
+  ],
+  "responses": [
+    {
+      "name": "Default Risk",
+      "type": "CATEGORICAL",
+      "dataType": "INT",
+      "nCategories": "2",
+      "categoryMap": {
+        "0": "Low Risk",
+        "1": "Medium Risk",
+        "2": "High Risk"
+      },
+      "schema": [],
+      "shape": []
+    }
+  ]
+}
